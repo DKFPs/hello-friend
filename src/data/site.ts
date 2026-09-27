@@ -1,11 +1,11 @@
-export const EXTERNAL_CHECKOUT_URL = "#ebook";
+export const CHECKOUT_PATH = "/checkout";
 
 export const ebook = {
   title: "Lula: uma trajetória política em perspectiva",
   subtitle: "Governos, acontecimentos, decisões, temas, indicadores e referências reunidos em um único material digital.",
   description: "Uma edição editorial organizada por períodos e temas para facilitar a consulta sobre a trajetória política de Luiz Inácio Lula da Silva.",
-  price: "R$ XX,XX",
-  oldPrice: "R$ XX,XX",
+  price: "R$ 23,47",
+  oldPrice: "R$ 163,89",
   availabilityText: "E-book digital",
 };
 
