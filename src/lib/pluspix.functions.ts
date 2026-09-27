@@ -12,7 +12,7 @@ const DepositSchema = z.object({
 });
 
 export const checkPixTransaction = createServerFn({ method: "POST" })
-  .validator((input: unknown) =>
+  .inputValidator((input: unknown) =>
     z.object({
       transactionId: z.string().trim().min(1).max(160),
     }).parse(input),
@@ -54,7 +54,7 @@ export const checkPixTransaction = createServerFn({ method: "POST" })
   });
 
 export const createPixDeposit = createServerFn({ method: "POST" })
-  .validator((input: unknown) => DepositSchema.parse(input))
+  .inputValidator((input: unknown) => DepositSchema.parse(input))
   .handler(async ({ data }) => {
     const clientId = process.env.PLUSPIX_CLIENT_ID;
     const clientSecret = process.env.PLUSPIX_CLIENT_SECRET;
