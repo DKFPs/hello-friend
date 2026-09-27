@@ -61,7 +61,7 @@ export function HomePage() {
           </div>
         </div>
         {menuOpen && <div className="mobile-sales-menu">
-          {[[ "Conteúdo","conteudo" ],[ "Por dentro","preview" ],[ "Fontes","fontes" ],[ "E-book","ebook" ]].map(([label,id]) => <button key={id} onClick={() => { scrollTo(id); setMenuOpen(false); }}>{label}</button>)}
+          {[[ "Conteúdo","conteudo" ],[ "Por dentro","preview" ],[ "Fontes","fontes" ],[ "E-book","ebook" ]].map(([label,id]) => <button key={id} onClick={() => { scrollTo(id!); setMenuOpen(false); }}>{label}</button>)}
         </div>}
       </header>
 

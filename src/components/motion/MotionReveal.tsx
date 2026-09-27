@@ -14,7 +14,7 @@ export function MotionReveal({ children, className = "", delay = 0 }: { children
     }
 
     const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
+      if (entry?.isIntersecting) {
         setVisible(true);
         observer.disconnect();
       }
