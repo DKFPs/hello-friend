@@ -9,7 +9,7 @@ export function BookPreview() {
   const touchStart = useRef<number | null>(null);
   const touchCurrent = useRef<number | null>(null);
   const didSwipe = useRef(false);
-  const current = ebookPreviewImages[active];
+  const current = (ebookPreviewImages[active] ?? ebookPreviewImages[0])!;
 
   const step = (direction: number) => {
     setActive((value) => (value + direction + ebookPreviewImages.length) % ebookPreviewImages.length);
