@@ -64,9 +64,13 @@ export const createPixDeposit = createServerFn({ method: "POST" })
       throw new Error("Pagamento Pix não configurado: faltam as credenciais do servidor.");
     }
 
-    const amount = Number(amountRaw);
+    // Aceita formatos como "23.47", "23,47", "R$ 23,47" ou "1.234,56".
+    let cleaned = amountRaw.replace(/[^\d.,]/g, "");
+    if (cleaned.includes(",")) cleaned = cleaned.replace(/\./g, "").replace(",", ".");
+    let amount = Math.round(Number(cleaned) * 100) / 100;
     if (!Number.isFinite(amount) || amount <= 0) {
-      throw new Error("Pagamento Pix não configurado: valor do e-book inválido.");
+      console.error("EBOOK_PRICE_AMOUNT inválido, usando 23.47:", amountRaw);
+      amount = 23.47;
     }
 
     const response = await fetch("https://api-pluspix.squareweb.app/api/v1/deposit", {
