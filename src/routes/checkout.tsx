@@ -1,13 +1,31 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowLeft, CheckCircle2, ShieldCheck } from "lucide-react";
 import { ebook } from "../data/site";
 import { PixCheckoutModal } from "../components/site/PixCheckoutModal";
+import { getPlusPixConfigStatus } from "../server/payments/pluspix";
 
 export const Route = createFileRoute("/checkout")({
   component: CheckoutPage,
 });
 
 function CheckoutPage() {
+  const [gatewayReady, setGatewayReady] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    void getPlusPixConfigStatus()
+      .then((result) => {
+        if (active) setGatewayReady(result.configured);
+      })
+      .catch(() => {
+        if (active) setGatewayReady(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <main className="checkout-page">
       <div className="checkout-page-shell">
@@ -37,6 +55,17 @@ function CheckoutPage() {
             <div className="checkout-trust">
               <ShieldCheck size={18}/>
               <span>Pagamento Pix processado pela integração com a Plus Pix.</span>
+            </div>
+
+            <div className={"checkout-gateway-status " + (gatewayReady === true ? "ready" : gatewayReady === false ? "error" : "")}>
+              {gatewayReady === true ? <CheckCircle2 size={16}/> : <ShieldCheck size={16}/>}
+              <span>
+                {gatewayReady === true
+                  ? "Gateway Pix configurado no servidor."
+                  : gatewayReady === false
+                    ? "O servidor não encontrou as Secrets da Plus Pix. Confira as variáveis no Lovable."
+                    : "Verificando a configuração do gateway..."}
+              </span>
             </div>
           </div>
 
