@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Check, Clipboard, Loader2, X } from "lucide-react";
+import { Check, Clipboard, Download, Loader2, X } from "lucide-react";
 import { checkPixTransaction, createPixDeposit } from "../../lib/pluspix.functions";
+import { createEbookDownloadLink } from "../../server/payments/ebook-delivery";
 
 function onlyDigits(value: string) {
   return value.replace(/\D/g, "").slice(0, 11);
@@ -21,6 +22,8 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
   const [checking, setChecking] = useState(false);
+  const [downloadPath, setDownloadPath] = useState("");
+  const [downloadLoading, setDownloadLoading] = useState(false);
 
   useEffect(() => {
     if (!open || !payment?.transactionId) return;
@@ -51,6 +54,7 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
 
         if (["COMPLETO", "PAGO", "PAID"].includes(transactionState)) {
           window.clearInterval(interval);
+          void unlockDownload(payment.transactionId, payerDocument);
         }
       } catch {
         // Falhas temporárias de consulta não interrompem o polling.
@@ -73,11 +77,15 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
     event.preventDefault();
     setError("");
     setLoading(true);
+    setDownloadPath("");
     try {
       const result = await createPixDeposit({
         data: { payerName: payerName.trim(), payerDocument: onlyDigits(payerDocument) },
       });
       setPayment(result);
+      if (["COMPLETO", "PAGO", "PAID"].includes(result.status.trim().toUpperCase())) {
+        void unlockDownload(result.transactionId, onlyDigits(payerDocument));
+      }
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Não foi possível gerar o Pix.");
     } finally {
@@ -97,6 +105,9 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
         ...current,
         status: result.transactionState,
       } : current);
+      if (["COMPLETO", "PAGO", "PAID"].includes(result.transactionState.trim().toUpperCase())) {
+        void unlockDownload(payment.transactionId, payerDocument);
+      }
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Não foi possível consultar o pagamento.");
     } finally {
@@ -112,8 +123,9 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
   };
 
   const close = () => {
-    if (!loading) {
+    if (!loading && !downloadLoading && !checking) {
       setPayment(null);
+      setDownloadPath("");
       setError("");
       onClose();
     }
@@ -169,11 +181,27 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
             <button className="btn btn-secondary full-width pix-check-now" onClick={checkNow} disabled={checking || ["COMPLETO", "PAGO", "PAID"].includes(payment.status.trim().toUpperCase())}>
               {checking ? <><Loader2 size={16} className="spin"/> Consultando pagamento...</> : "Já paguei · Verificar agora"}
             </button>
+            {["COMPLETO", "PAGO", "PAID"].includes(payment.status.trim().toUpperCase()) && (
+              <div className="pix-download-area">
+                {downloadPath ? (
+                  <>
+                    <a className="btn btn-primary full-width pix-download" href={downloadPath}>
+                      <Download size={17}/> Baixar e-book
+                    </a>
+                    <p className="pix-download-note">Link seguro válido por 15 minutos. O servidor confirma novamente o pagamento no momento do download.</p>
+                  </>
+                ) : (
+                  <div className="pix-warning">
+                    {downloadLoading ? "Preparando seu link seguro de download..." : "Pagamento confirmado. Preparando o download..."}
+                  </div>
+                )}
+              </div>
+            )}
             <div className="pix-transaction">Transação: {payment.transactionId || "gerada pela Plus Pix"}</div>
             {!["COMPLETO", "PAGO", "PAID"].includes(payment.status.trim().toUpperCase()) && (
               <div className="pix-warning">A confirmação automática está ativa por consulta à API. O sistema fará novas verificações por até 3 minutos.</div>
             )}
-            <button className="btn btn-ghost full-width" onClick={close}>Fechar</button>
+            <button className="btn btn-ghost full-width" onClick={close} disabled={downloadLoading}>Fechar</button>
           </>
         )}
       </div>

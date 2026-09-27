@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as DownloadEbookRouteImport } from './routes/download/ebook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -23,30 +24,40 @@ const CheckoutRoute = CheckoutRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 
+const DownloadEbookRoute = DownloadEbookRouteImport.update({
+  id: '/download/ebook',
+  path: '/download/ebook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
+  '/download/ebook': typeof DownloadEbookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
+  '/download/ebook': typeof DownloadEbookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
+  '/download/ebook': typeof DownloadEbookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/checkout'
+  fullPaths: '/' | '/checkout' | '/download/ebook'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/checkout'
-  id: '__root__' | '/' | '/checkout'
+  to: '/' | '/checkout' | '/download/ebook'
+  id: '__root__' | '/' | '/checkout' | '/download/ebook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CheckoutRoute: typeof CheckoutRoute
+  DownloadEbookRoute: typeof DownloadEbookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +76,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/download/ebook': {
+      id: '/download/ebook'
+      path: '/download/ebook'
+      fullPath: '/download/ebook'
+      preLoaderRoute: typeof DownloadEbookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CheckoutRoute: CheckoutRoute,
+  DownloadEbookRoute: DownloadEbookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
