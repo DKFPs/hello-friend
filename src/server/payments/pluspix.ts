@@ -1,6 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
+export const getPlusPixConfigStatus = createServerFn({ method: "GET" }).handler(() => ({
+  configured: Boolean(process.env.PLUSPIX_CLIENT_ID && process.env.PLUSPIX_CLIENT_SECRET),
+  amount: 23.47,
+}));
+
 const DepositSchema = z.object({
   payerName: z.string().trim().min(3).max(120),
   payerDocument: z.string().trim().regex(/^\d{11}$/, "CPF deve conter 11 dígitos."),
