@@ -53,7 +53,7 @@ export const createPixDeposit = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const clientId = process.env.PLUSPIX_CLIENT_ID;
     const clientSecret = process.env.PLUSPIX_CLIENT_SECRET;
-    const amountRaw = process.env.EBOOK_PRICE_AMOUNT;
+    const amountRaw = process.env.EBOOK_PRICE_AMOUNT || "23.47";
 
     if (!clientId || !clientSecret) {
       throw new Error("Pagamento Pix não configurado: faltam as credenciais do servidor.");
@@ -61,7 +61,7 @@ export const createPixDeposit = createServerFn({ method: "POST" })
 
     const amount = Number(amountRaw);
     if (!Number.isFinite(amount) || amount <= 0) {
-      throw new Error("Pagamento Pix não configurado: EBOOK_PRICE_AMOUNT inválido.");
+      throw new Error("Pagamento Pix não configurado: valor do e-book inválido.");
     }
 
     const response = await fetch("https://api-pluspix.squareweb.app/api/v1/deposit", {
