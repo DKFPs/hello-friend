@@ -28,6 +28,7 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
 
     let active = true;
     let attempts = 0;
+    let interval = 0;
     const maxAttempts = 36;
 
     const poll = async () => {
@@ -41,17 +42,22 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
 
         if (!active) return;
 
+        const transactionState = result.transactionState.trim().toUpperCase();
         setPayment((current) => current ? {
           ...current,
           status: result.transactionState,
         } : current);
+
+        if (["COMPLETO", "PAGO", "PAID"].includes(transactionState)) {
+          window.clearInterval(interval);
+        }
       } catch {
         // Falhas temporárias de consulta não interrompem o polling.
       }
     };
 
     void poll();
-    const interval = window.setInterval(() => {
+    interval = window.setInterval(() => {
       void poll();
       if (attempts >= maxAttempts) window.clearInterval(interval);
     }, 5000);
@@ -60,7 +66,7 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
       active = false;
       window.clearInterval(interval);
     };
-  }, [open, payment?.transactionId, payment?.status]);
+  }, [open, payment?.transactionId]);
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
