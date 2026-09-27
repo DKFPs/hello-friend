@@ -6,6 +6,48 @@ const DepositSchema = z.object({
   payerDocument: z.string().trim().regex(/^\d{11}$/, "CPF deve conter 11 dígitos."),
 });
 
+export const checkPixTransaction = createServerFn({ method: "POST" })
+  .validator((input: unknown) =>
+    z.object({
+      transactionId: z.string().trim().min(1).max(160),
+    }).parse(input),
+  )
+  .handler(async ({ data }) => {
+    const clientId = process.env.PLUSPIX_CLIENT_ID;
+    const clientSecret = process.env.PLUSPIX_CLIENT_SECRET;
+
+    if (!clientId || !clientSecret) {
+      throw new Error("Pagamento Pix não configurado: faltam as credenciais do servidor.");
+    }
+
+    const response = await fetch("https://api-pluspix.squareweb.app/api/transactions/check", {
+      method: "POST",
+      headers: {
+        "x-client-id": clientId,
+        "x-client-secret": clientSecret,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        transactionId: data.transactionId,
+      }),
+    });
+
+    const payload = await response.json().catch(() => null);
+
+    if (!response.ok || !payload?.transaction) {
+      console.error("Plus Pix status error:", response.status, payload);
+      throw new Error("Não foi possível consultar o status do pagamento.");
+    }
+
+    return {
+      transactionId: String(payload.transaction.transactionId ?? data.transactionId),
+      value: Number(payload.transaction.value ?? 0),
+      transactionState: String(payload.transaction.transactionState ?? "DESCONHECIDO"),
+      transactionType: String(payload.transaction.transactionType ?? ""),
+      createdAt: String(payload.transaction.createdAt ?? ""),
+    };
+  });
+
 export const createPixDeposit = createServerFn({ method: "POST" })
   .validator((input: unknown) => DepositSchema.parse(input))
   .handler(async ({ data }) => {
