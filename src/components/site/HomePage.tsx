@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowDown, ArrowRight, BookOpen, Check, ChevronDown, ExternalLink, Menu, Search, ShieldCheck, Sparkles, X } from "lucide-react";
-import { chapters, ebook, heroImage, siteSources, themes, timeline } from "../../data/site";
+import { chapters, ebook, galleryImages, heroImage, siteSources, themes, timeline } from "../../data/site";
 import { BookPreview } from "./BookPreview";
 import { CheckoutButton } from "./CheckoutButton";
 import { MotionReveal } from "../motion/MotionReveal";
@@ -152,6 +152,31 @@ export function HomePage() {
           <div className="shell"><MotionReveal><div className="sales-heading"><div><span className="eyebrow">06 • TEMAS</span><h2>Conteúdo dividido por assunto.</h2></div><p>Pesquise uma categoria para explorar a proposta do material.</p></div></MotionReveal>
             <div className="search-box search-sales"><Search size={18}/><input value={search} onChange={(e)=>setSearch(e.target.value)} placeholder="Buscar tema..." aria-label="Buscar tema"/></div>
             <div className="theme-chip-grid">{filteredThemes.map(([title,text],index)=><MotionReveal key={title} delay={index*40} className="theme-sales-card"><span>{String(index+1).padStart(2,"0")}</span><h3>{title}</h3><p>{text}</p></MotionReveal>)}</div>
+          </div>
+        </section>
+
+        <section className="section gallery-section">
+          <div className="shell">
+            <MotionReveal>
+              <div className="sales-heading">
+                <div>
+                  <span className="eyebrow">07 • GALERIA</span>
+                  <h2>Imagens e registros do acervo público.</h2>
+                </div>
+                <p>Registros fotográficos de agendas institucionais e espaços da Presidência da República, com identificação das fontes.</p>
+              </div>
+            </MotionReveal>
+            <div className="image-gallery">
+              {galleryImages.map((image, index) => (
+                <MotionReveal key={image.src} delay={index * 70} className="gallery-card">
+                  <img src={image.src} alt={image.alt} loading={index === 0 ? "eager" : "lazy"} />
+                  <div className="gallery-caption">
+                    <strong>{image.caption}</strong>
+                    <span>{image.credit}</span>
+                  </div>
+                </MotionReveal>
+              ))}
+            </div>
           </div>
         </section>
 
