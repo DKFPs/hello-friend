@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, CheckCircle2, ShieldCheck } from "lucide-react";
 import { ebook } from "../data/site";
 import { PixCheckoutModal } from "../components/site/PixCheckoutModal";
-import { getPlusPixConfigStatus } from "../server/payments/pluspix";
+import { getPlusPixConfigStatus } from "../lib/pluspix.functions";
 
 export const Route = createFileRoute("/checkout")({
   component: CheckoutPage,

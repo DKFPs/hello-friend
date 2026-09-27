@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Check, Clipboard, Loader2, X } from "lucide-react";
-import { checkPixTransaction, createPixDeposit } from "../../server/payments/pluspix";
+import { checkPixTransaction, createPixDeposit } from "../../lib/pluspix.functions";
 
 function onlyDigits(value: string) {
   return value.replace(/\D/g, "").slice(0, 11);
