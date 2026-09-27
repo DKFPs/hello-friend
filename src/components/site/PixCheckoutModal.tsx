@@ -20,6 +20,7 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
   const [payment, setPayment] = useState<{ transactionId: string; qrcodeUrl: string; copyPaste: string; status: string } | null>(null);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [checking, setChecking] = useState(false);
 
   useEffect(() => {
     if (!open || !payment?.transactionId) return;
@@ -84,6 +85,25 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
     }
   };
 
+  const checkNow = async () => {
+    if (!payment?.transactionId || checking) return;
+    setChecking(true);
+    setError("");
+    try {
+      const result = await checkPixTransaction({
+        data: { transactionId: payment.transactionId },
+      });
+      setPayment((current) => current ? {
+        ...current,
+        status: result.transactionState,
+      } : current);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Não foi possível consultar o pagamento.");
+    } finally {
+      setChecking(false);
+    }
+  };
+
   const copy = async () => {
     if (!payment?.copyPaste) return;
     await navigator.clipboard.writeText(payment.copyPaste);
@@ -139,9 +159,16 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
                 A cobrança foi criada e está com status <strong>{payment.status}</strong>. O site consulta a Plus Pix automaticamente até a confirmação.
               </p>
             )}
-            {payment.qrcodeUrl && <div className="pix-qr"><img src={qrSource(payment.qrcodeUrl)} alt="QR Code para pagamento Pix"/></div>}
-            <button className="pix-copy" onClick={copy}>{copied ? <Check size={17}/> : <Clipboard size={17}/>} {copied ? "Código copiado" : "Copiar Pix Copia e Cola"}</button>
+            {payment.qrcodeUrl ? (
+              <div className="pix-qr"><img src={qrSource(payment.qrcodeUrl)} alt="QR Code para pagamento Pix"/></div>
+            ) : (
+              <div className="pix-error">A Plus Pix não retornou o QR Code. Tente gerar uma nova cobrança.</div>
+            )}
+            <button className="pix-copy" onClick={copy} disabled={!payment.copyPaste}>{copied ? <Check size={17}/> : <Clipboard size={17}/>} {copied ? "Código copiado" : "Copiar Pix Copia e Cola"}</button>
             {payment.copyPaste && <textarea readOnly value={payment.copyPaste} aria-label="Pix Copia e Cola"/>}
+            <button className="btn btn-secondary full-width pix-check-now" onClick={checkNow} disabled={checking || ["COMPLETO", "PAGO", "PAID"].includes(payment.status.trim().toUpperCase())}>
+              {checking ? <><Loader2 size={16} className="spin"/> Consultando pagamento...</> : "Já paguei · Verificar agora"}
+            </button>
             <div className="pix-transaction">Transação: {payment.transactionId || "gerada pela Plus Pix"}</div>
             {!["COMPLETO", "PAGO", "PAID"].includes(payment.status.trim().toUpperCase()) && (
               <div className="pix-warning">A confirmação automática está ativa por consulta à API. O sistema fará novas verificações por até 3 minutos.</div>
