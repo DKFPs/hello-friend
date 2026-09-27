@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, type TouchEvent } from "react";
 import { ChevronLeft, ChevronRight, Maximize2 } from "lucide-react";
 import { ebookPreviewImages } from "../../data/site";
 import { MotionReveal } from "../motion/MotionReveal";
@@ -14,12 +14,12 @@ export function BookPreview() {
     setActive((value) => (value + direction + ebookPreviewImages.length) % ebookPreviewImages.length);
   };
 
-  const onTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+  const onTouchStart = (event: TouchEvent<HTMLDivElement>) => {
     touchStart.current = event.touches[0]?.clientX ?? null;
     touchCurrent.current = touchStart.current;
   };
 
-  const onTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+  const onTouchMove = (event: TouchEvent<HTMLDivElement>) => {
     touchCurrent.current = event.touches[0]?.clientX ?? touchCurrent.current;
   };
 
