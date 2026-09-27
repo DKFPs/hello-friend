@@ -81,7 +81,7 @@ export function HomePage() {
                 <CheckoutButton className="btn-large">Acessar o e-book</CheckoutButton>
                 <button className="btn btn-ghost btn-large" onClick={() => scrollTo("preview")}>Ver por dentro <ArrowDown size={16}/></button>
               </div>
-              <small className="hero-note">O checkout será externo. O link pode ser alterado em uma única configuração.</small>
+              <small className="hero-note">O pagamento é gerado com Pix. A confirmação automática será ligada após configurarmos o retorno de status da Plus Pix.</small>
             </MotionReveal>
 
             <MotionReveal className="sales-hero-visual" delay={120}>
@@ -160,7 +160,7 @@ export function HomePage() {
             <MotionReveal className="offer-copy"><span className="eyebrow">07 • OFERTA</span><h2>Tenha a edição completa reunida em um único e-book.</h2><p>{ebook.description}</p><div className="offer-list">{["Linha do tempo ampliada","Capítulos por governo e tema","Referências e links consultáveis","Leitura digital em múltiplos dispositivos"].map(item=><span key={item}><Check size={16}/>{item}</span>)}</div></MotionReveal>
             <MotionReveal className="offer-card" delay={120}>
               <div className="offer-cover"><span>ARQUIVO</span><strong>LULA</strong><small>UMA TRAJETÓRIA POLÍTICA EM PERSPECTIVA</small></div>
-              <div className="offer-meta"><span className="eyebrow">{ebook.availabilityText}</span><h3>{ebook.title}</h3><div className="price-row"><del>{ebook.oldPrice}</del><strong>{ebook.price}</strong></div><p>As condições de pagamento e entrega serão apresentadas no checkout externo.</p><CheckoutButton className="full-width">Acessar o e-book</CheckoutButton><small>Você será redirecionado para o checkout.</small></div>
+              <div className="offer-meta"><span className="eyebrow">{ebook.availabilityText}</span><h3>{ebook.title}</h3><div className="price-row"><del>{ebook.oldPrice}</del><strong>{ebook.price}</strong></div><p>O pagamento é gerado via Pix diretamente pela integração segura com a Plus Pix.</p><CheckoutButton className="full-width">Acessar o e-book</CheckoutButton><small>O QR Code e o Pix Copia e Cola aparecem aqui mesmo.</small></div>
             </MotionReveal>
           </div>
         </section>
