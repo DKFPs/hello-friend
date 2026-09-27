@@ -1,171 +1,183 @@
-import { useMemo, useState } from "react";
-import { ArrowRight, BookOpen, Check, ChevronDown, ExternalLink, Search, ShieldCheck, Clock3, LibraryBig } from "lucide-react";
-import { EXTERNAL_CHECKOUT_URL, heroImage, siteSources, themes } from "../../data/site";
-import { SiteHeader } from "./SiteHeader";
-import { Timeline } from "./Timeline";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowDown, ArrowRight, BookOpen, Check, ChevronDown, ExternalLink, Menu, Search, ShieldCheck, Sparkles, X } from "lucide-react";
+import { chapters, ebook, heroImage, siteSources, themes, timeline } from "../../data/site";
+import { BookPreview } from "./BookPreview";
+import { CheckoutButton } from "./CheckoutButton";
+import { MotionReveal } from "../motion/MotionReveal";
 
 const faqs = [
-  ["O que é o Arquivo Lula?", "É uma plataforma editorial que organiza informações sobre a trajetória política, os governos e acontecimentos relacionados a Luiz Inácio Lula da Silva, com links para fontes consultáveis."],
-  ["O material já é o e-book completo?", "Nesta fase, o site apresenta a estrutura do produto. O e-book definitivo será conectado posteriormente ao checkout externo."],
-  ["O conteúdo é atualizado?", "A estrutura foi pensada para receber novos acontecimentos e referências. A data de corte de cada edição deverá aparecer de forma explícita no produto."],
-  ["Onde encontro as referências?", "A seção Fontes reúne links para acervos públicos e institucionais usados como ponto de partida da pesquisa."],
+  ["O que é este e-book?", "É um material digital organizado por períodos e temas sobre a trajetória política de Luiz Inácio Lula da Silva, com contexto e referências para consulta."],
+  ["Quais assuntos são abordados?", "A estrutura contempla biografia, governos, economia, políticas sociais, relações internacionais, controvérsias, linha do tempo e fontes."],
+  ["O conteúdo possui fontes?", "Sim. A proposta editorial é indicar referências consultáveis e separar fatos documentados de alegações ou interpretações."],
+  ["O material possui data de corte?", "Cada edição deverá informar claramente sua data de corte, para que o leitor saiba até quando o conteúdo foi atualizado."],
+  ["Posso ler pelo celular?", "Sim. O e-book será disponibilizado em formato digital compatível com celular, tablet e computador."],
+  ["Como funciona o pagamento?", "O botão de compra leva para um checkout externo. As condições de pagamento e entrega são apresentadas na página do checkout."],
 ];
 
-function scrollTo(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-}
+const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
 export function HomePage() {
+  const [menuOpen, setMenuOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [faqOpen, setFaqOpen] = useState<number | null>(null);
+  const [progress, setProgress] = useState(0);
+  const [stickyVisible, setStickyVisible] = useState(false);
+
   const filteredThemes = useMemo(
     () => themes.filter(([title, text]) => (title + " " + text).toLowerCase().includes(search.toLowerCase())),
     [search],
   );
 
-  const checkout = () => {
-    if (EXTERNAL_CHECKOUT_URL.startsWith("#")) {
-      scrollTo("ebook");
-      return;
-    }
-    window.location.href = EXTERNAL_CHECKOUT_URL;
-  };
+  useEffect(() => {
+    const onScroll = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(max > 0 ? Math.min(100, window.scrollY / max * 100) : 0);
+      setStickyVisible(window.scrollY > 520);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <div className="site-shell">
-      <SiteHeader />
+      <div className="reading-progress"><span style={{ width: progress + "%" }}/></div>
+
+      <header className="sales-header">
+        <div className="shell sales-header-row">
+          <button className="brand" onClick={() => scrollTo("inicio")} aria-label="Início">
+            <span className="brand-mark">AL</span>
+            <span><strong>Arquivo Lula</strong><small>documentos • trajetória • contexto</small></span>
+          </button>
+          <nav className="desktop-sales-nav" aria-label="Navegação">
+            <button onClick={() => scrollTo("conteudo")}>Conteúdo</button>
+            <button onClick={() => scrollTo("preview")}>Por dentro</button>
+            <button onClick={() => scrollTo("fontes")}>Fontes</button>
+            <button onClick={() => scrollTo("ebook")}>E-book</button>
+          </nav>
+          <div className="sales-nav-actions">
+            <button className="header-buy desktop-only" onClick={() => scrollTo("ebook")}>Ver oferta <ArrowRight size={15}/></button>
+            <button className="mobile-menu-trigger" onClick={() => setMenuOpen((value) => !value)} aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}>{menuOpen ? <X size={22}/> : <Menu size={22}/>}</button>
+          </div>
+        </div>
+        {menuOpen && <div className="mobile-sales-menu">
+          {[[ "Conteúdo","conteudo" ],[ "Por dentro","preview" ],[ "Fontes","fontes" ],[ "E-book","ebook" ]].map(([label,id]) => <button key={id} onClick={() => { scrollTo(id); setMenuOpen(false); }}>{label}</button>)}
+        </div>}
+      </header>
+
       <main>
-        <section id="inicio" className="hero-section">
-          <div className="shell hero-grid">
-            <div className="hero-copy">
-              <span className="eyebrow">ARQUIVO EDITORIAL • ATUALIZÁVEL</span>
-              <h1>Uma trajetória política contada em contexto.</h1>
-              <p className="hero-lead">Navegue por biografia, governos, temas, acontecimentos e referências de Luiz Inácio Lula da Silva em uma experiência feita para consulta rápida e leitura profunda.</p>
-              <div className="hero-actions">
-                <button className="btn btn-primary" onClick={() => scrollTo("trajetoria")}>Explorar trajetória <ArrowRight size={17} /></button>
-                <button className="btn btn-ghost" onClick={() => scrollTo("ebook")}>Conhecer o e-book</button>
+        <section id="inicio" className="sales-hero">
+          <div className="shell sales-hero-grid">
+            <MotionReveal className="sales-hero-copy">
+              <span className="eyebrow">E-BOOK DIGITAL • ARQUIVO EDITORIAL</span>
+              <h1>{ebook.title}</h1>
+              <p>{ebook.subtitle}</p>
+              <div className="hero-badges">
+                <span><ShieldCheck size={15}/> Fontes consultáveis</span>
+                <span><BookOpen size={15}/> Leitura digital</span>
+                <span>Conteúdo organizado</span>
               </div>
-              <div className="hero-trust">
-                <span><ShieldCheck size={16} /> fontes consultáveis</span>
-                <span><Clock3 size={16} /> conteúdo por período</span>
-                <span><LibraryBig size={16} /> estrutura editorial</span>
+              <div className="sales-hero-actions">
+                <CheckoutButton className="btn-large">Acessar o e-book</CheckoutButton>
+                <button className="btn btn-ghost btn-large" onClick={() => scrollTo("preview")}>Ver por dentro <ArrowDown size={16}/></button>
               </div>
-            </div>
-            <div className="hero-media">
-              <div className="hero-image-wrap">
-                <img src={heroImage} alt="Luiz Inácio Lula da Silva em reunião institucional, foto do acervo da Presidência da República" />
-                <div className="image-credit">Foto: Ricardo Stuckert / Presidência da República</div>
+              <small className="hero-note">O checkout será externo. O link pode ser alterado em uma única configuração.</small>
+            </MotionReveal>
+
+            <MotionReveal className="sales-hero-visual" delay={120}>
+              <div className="hero-photo">
+                <img src={heroImage} alt="Luiz Inácio Lula da Silva em evento institucional. Foto: Ricardo Stuckert/Presidência da República."/>
+                <div className="photo-caption">Foto: Ricardo Stuckert / Presidência da República</div>
               </div>
-              <div className="hero-float-card">
-                <span className="eyebrow">PONTO DE PARTIDA</span>
-                <strong>1945 → presente</strong>
-                <p>Uma linha do tempo para entender os principais períodos da trajetória presidencial.</p>
+              <div className="hero-book-card">
+                <div className="mini-book"><span>ARQUIVO</span><strong>LULA</strong><small>trajetória • governos • fontes</small></div>
+                <div><span className="eyebrow">PRODUTO DIGITAL</span><b>Uma edição pensada para consulta</b><p>{ebook.description}</p></div>
               </div>
-            </div>
+            </MotionReveal>
           </div>
         </section>
 
-        <section className="ticker"><div className="shell ticker-row"><span>1945</span><i/><span>1970s</span><i/><span>1980</span><i/><span>2002</span><i/><span>2003–2010</span><i/><span>2022</span><i/><span>2023–</span></div></section>
+        <section className="trust-strip"><div className="shell trust-grid"><span>História política</span><i/><span>Períodos presidenciais</span><i/><span>Temas</span><i/><span>Acontecimentos</span><i/><span>Referências</span></div></section>
 
-        <section id="trajetoria" className="section shell">
-          <div className="section-heading">
-            <div><span className="eyebrow">01 • TRAJETÓRIA</span><h2>De Garanhuns à Presidência</h2></div>
-            <p>Lula nasceu em 27 de outubro de 1945, em Garanhuns, Pernambuco. Sua trajetória profissional passou pela metalurgia e sua atuação pública ganhou projeção no movimento sindical.</p>
-          </div>
-          <div className="story-grid">
-            <article className="story-card story-card-large"><span className="story-number">01</span><h3>Origens e trabalho</h3><p>Infância em Pernambuco, migração para São Paulo e formação como torneiro mecânico são partes centrais da biografia disponível em acervos públicos.</p><button className="text-link" onClick={() => scrollTo("fontes")}>Ver referências <ArrowRight size={15}/></button></article>
-            <article className="story-card"><span className="story-number">02</span><h3>Movimento sindical</h3><p>A partir do final da década de 1960, Lula passou a atuar no movimento sindical e, em 1975, tornou-se presidente do Sindicato dos Metalúrgicos de São Bernardo do Campo e Diadema.</p></article>
-            <article className="story-card"><span className="story-number">03</span><h3>Entrada na política</h3><p>Participou da fundação do Partido dos Trabalhadores e construiu uma trajetória eleitoral que culminou na eleição presidencial de 2002.</p></article>
-          </div>
-        </section>
-
-        <section id="governos" className="section section-dark">
+        <section id="conteudo" className="section sales-section">
           <div className="shell">
-            <div className="section-heading">
-              <div><span className="eyebrow">02 • GOVERNOS</span><h2>Três períodos presidenciais para consultar</h2></div>
-              <p>O projeto organiza o conteúdo por mandato, permitindo acompanhar medidas, acontecimentos, indicadores e fontes de cada período.</p>
-            </div>
-            <div className="government-grid">
-              {[
-                ["01","2003–2006","Primeiro mandato","Posse em 1º de janeiro de 2003 e quatro anos de governo."],
-                ["02","2007–2010","Segundo mandato","Segundo período presidencial iniciado em 1º de janeiro de 2007."],
-                ["03","2023–","Terceiro mandato","Novo mandato iniciado em 1º de janeiro de 2023, com conteúdo atualizável."],
-              ].map(([no,period,title,text]) => <article className="gov-card" key={no}><div className="gov-top"><span>{no}</span><small>{period}</small></div><h3>{title}</h3><p>{text}</p><button onClick={() => scrollTo("timeline")} className="text-link">Ver linha do tempo <ArrowRight size={15}/></button></article>)}
+            <MotionReveal><div className="sales-heading"><div><span className="eyebrow">01 • CONTEÚDO</span><h2>Veja o que está dentro.</h2></div><p>Uma estrutura editorial para transformar um assunto amplo em blocos fáceis de navegar, consultar e aprofundar.</p></div></MotionReveal>
+            <div className="chapter-grid">
+              {chapters.map(([number,title,text],index)=><MotionReveal key={number} delay={index*45} className="chapter-card"><span className="chapter-number">{number}</span><div><h3>{title}</h3><p>{text}</p></div><ArrowRight size={17} className="chapter-arrow"/></MotionReveal>)}
             </div>
           </div>
         </section>
 
-        <section id="temas" className="section shell">
-          <div className="section-heading">
-            <div><span className="eyebrow">03 • TEMAS</span><h2>Encontre o assunto que você procura</h2></div>
-            <p>Uma estrutura modular para transformar o site em uma biblioteca digital conforme o conteúdo do e-book cresce.</p>
-          </div>
-          <div id="busca" className="search-box"><Search size={19}/><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar por tema..." aria-label="Buscar por tema"/></div>
-          <div className="theme-grid">{filteredThemes.map(([title,text],index)=><article className="theme-card" key={title}><span>{String(index+1).padStart(2,"0")}</span><h3>{title}</h3><p>{text}</p></article>)}</div>
-        </section>
-
-        <section id="timeline" className="section section-paper">
-          <div className="narrow">
-            <div className="section-heading centered"><span className="eyebrow">04 • LINHA DO TEMPO</span><h2>Uma leitura cronológica</h2><p>Os marcos abaixo usam como ponto de partida informações presentes em acervos públicos e institucionais.</p></div>
-            <Timeline/>
+        <section id="preview" className="section preview-section">
+          <div className="shell preview-grid">
+            <MotionReveal>
+              <span className="eyebrow">02 • POR DENTRO</span>
+              <h2>Veja a estrutura antes de comprar.</h2>
+              <p>Deslize no celular, use as setas no desktop ou toque para ampliar a prévia.</p>
+              <div className="preview-proof">{["Capa","Sumário","Linha do tempo","Referências"].map(item=><span key={item}><Check size={15}/>{item}</span>)}</div>
+            </MotionReveal>
+            <BookPreview/>
           </div>
         </section>
 
-        <section id="controversias" className="section shell">
-          <div className="section-heading">
-            <div><span className="eyebrow">05 • CONTROVÉRSIAS</span><h2>Fatos, alegações e desdobramentos separados</h2></div>
-            <p>O conteúdo futuro desta área deverá apresentar contexto, cronologia, status e fontes, sem transformar alegações em fatos.</p>
-          </div>
-          <div className="controversy-box"><div className="controversy-icon"><ShieldCheck size={22}/></div><div><h3>Critério editorial</h3><p>Em temas controversos, o site exibirá a fonte, a data, o que foi alegado, o que foi oficialmente registrado e os desdobramentos conhecidos.</p></div></div>
-        </section>
-
-        <section id="ebook" className="ebook-section">
-          <div className="shell ebook-grid">
-            <div className="ebook-copy">
-              <span className="eyebrow">06 • E-BOOK</span>
-              <h2>O arquivo completo, organizado para consulta.</h2>
-              <p>Uma futura edição reunirá os conteúdos do portal em um único material digital, com capítulos, cronologia, tabelas, referências e recortes por tema.</p>
-              <div className="check-list">{["Linha do tempo ampliada","Capítulos por governo e tema","Referências e links consultáveis","Estrutura preparada para futuras atualizações"].map(item=><span key={item}><Check size={16}/> {item}</span>)}</div>
-              <button className="btn btn-primary btn-large" onClick={checkout}>Acessar o e-book <ArrowRight size={18}/></button>
-              <small className="checkout-note">O botão está preparado para receber seu checkout externo.</small>
-            </div>
-            <div className="book-mockup" aria-label="Mockup do e-book">
-              <div className="book-cover"><span>ARQUIVO</span><strong>LULA</strong><p>Trajetória política, governos, acontecimentos e fontes</p><div className="book-line"/><small>Edição digital</small></div>
-              <div className="book-page page-back"/>
-              <div className="book-page page-front"><span className="eyebrow">SUMÁRIO</span><b>Biografia</b><b>Governos</b><b>Temas</b><b>Controvérsias</b><b>Fontes</b></div>
+        <section className="section timeline-sales-section">
+          <div className="shell">
+            <MotionReveal><div className="sales-heading"><div><span className="eyebrow">03 • CRONOLOGIA</span><h2>Uma história organizada por datas.</h2></div><p>Um recorte de apresentação. A edição completa amplia contexto e referências.</p></div></MotionReveal>
+            <div className="timeline-mini-grid">
+              {timeline.map((item,index)=><MotionReveal key={item.year} delay={index*45} className="timeline-mini-card"><span>{item.year}</span><div><h3>{item.title}</h3><p>{item.text}</p></div></MotionReveal>)}
             </div>
           </div>
         </section>
 
-        <section id="fontes" className="section shell">
-          <div className="section-heading">
-            <div><span className="eyebrow">07 • FONTES</span><h2>Comece pela documentação</h2></div>
-            <p>O portal prioriza acervos públicos, institucionais e registros que possam ser consultados pelo leitor.</p>
+        <section className="section values-section">
+          <div className="shell">
+            <MotionReveal><div className="sales-heading centered-sales"><span className="eyebrow">04 • DIFERENCIAIS</span><h2>Feito para facilitar a consulta.</h2><p>O material reúne os principais blocos em uma estrutura editorial única, sem substituir a consulta às fontes originais.</p></div></MotionReveal>
+            <div className="value-grid">{[
+              ["Organização","Capítulos e períodos separados para encontrar o assunto com menos atrito."],
+              ["Contexto","Acontecimentos apresentados com datas e recortes que ajudam na compreensão."],
+              ["Consulta","Estrutura pensada para leitura rápida e aprofundamento."],
+              ["Referências","Fontes indicadas para verificar e continuar a pesquisa."],
+            ].map(([title,text],index)=><MotionReveal key={title} delay={index*70} className="value-card"><Sparkles size={18}/><h3>{title}</h3><p>{text}</p></MotionReveal>)}</div>
           </div>
-          <div className="source-list">{siteSources.map(source=><a className="source-row" href={source.url} target="_blank" rel="noreferrer" key={source.url}><div><span className="eyebrow">REFERÊNCIA</span><strong>{source.name}</strong></div><ExternalLink size={18}/></a>)}</div>
         </section>
 
-        <section className="section section-dark faq-section">
-          <div className="shell faq-grid">
-            <div><span className="eyebrow">08 • FAQ</span><h2>Perguntas frequentes</h2><p>Uma seção simples para reduzir dúvidas antes da compra do material.</p></div>
-            <div className="faq-list">{faqs.map(([question,answer])=><FaqItem question={question} answer={answer} key={question}/>)}</div>
+        <section id="fontes" className="section sources-sales-section">
+          <div className="shell sources-grid">
+            <MotionReveal><span className="eyebrow">05 • FONTES</span><h2>Pesquisa que começa pela documentação.</h2><p>Referências públicas e institucionais formam a base do projeto editorial.</p><button className="btn btn-ghost" onClick={() => scrollTo("ebook")}>Ver oferta <ArrowRight size={15}/></button></MotionReveal>
+            <div className="source-list">{siteSources.map((source,index)=><MotionReveal key={source.url} delay={index*60} className="source-row"><a href={source.url} target="_blank" rel="noreferrer"><div><span className="eyebrow">REFERÊNCIA</span><strong>{source.name}</strong></div><ExternalLink size={17}/></a></MotionReveal>)}</div>
           </div>
         </section>
+
+        <section className="section theme-sales-section">
+          <div className="shell"><MotionReveal><div className="sales-heading"><div><span className="eyebrow">06 • TEMAS</span><h2>Conteúdo dividido por assunto.</h2></div><p>Pesquise uma categoria para explorar a proposta do material.</p></div></MotionReveal>
+            <div className="search-box search-sales"><Search size={18}/><input value={search} onChange={(e)=>setSearch(e.target.value)} placeholder="Buscar tema..." aria-label="Buscar tema"/></div>
+            <div className="theme-chip-grid">{filteredThemes.map(([title,text],index)=><MotionReveal key={title} delay={index*40} className="theme-sales-card"><span>{String(index+1).padStart(2,"0")}</span><h3>{title}</h3><p>{text}</p></MotionReveal>)}</div>
+          </div>
+        </section>
+
+        <section id="ebook" className="offer-section">
+          <div className="shell offer-grid">
+            <MotionReveal className="offer-copy"><span className="eyebrow">07 • OFERTA</span><h2>Tenha a edição completa reunida em um único e-book.</h2><p>{ebook.description}</p><div className="offer-list">{["Linha do tempo ampliada","Capítulos por governo e tema","Referências e links consultáveis","Leitura digital em múltiplos dispositivos"].map(item=><span key={item}><Check size={16}/>{item}</span>)}</div></MotionReveal>
+            <MotionReveal className="offer-card" delay={120}>
+              <div className="offer-cover"><span>ARQUIVO</span><strong>LULA</strong><small>UMA TRAJETÓRIA POLÍTICA EM PERSPECTIVA</small></div>
+              <div className="offer-meta"><span className="eyebrow">{ebook.availabilityText}</span><h3>{ebook.title}</h3><div className="price-row"><del>{ebook.oldPrice}</del><strong>{ebook.price}</strong></div><p>As condições de pagamento e entrega serão apresentadas no checkout externo.</p><CheckoutButton className="full-width">Acessar o e-book</CheckoutButton><small>Você será redirecionado para o checkout.</small></div>
+            </MotionReveal>
+          </div>
+        </section>
+
+        <section className="section faq-sales-section">
+          <div className="shell faq-sales-grid">
+            <MotionReveal><span className="eyebrow">08 • FAQ</span><h2>Perguntas frequentes.</h2><p>Informação clara antes do clique de compra.</p></MotionReveal>
+            <div className="faq-list">{faqs.map(([question,answer],index)=><div className="faq-item" key={question}><button onClick={()=>setFaqOpen(faqOpen===index?null:index)} aria-expanded={faqOpen===index}><span>{question}</span><ChevronDown size={18} className={faqOpen===index?"rotate-180":""}/></button>{faqOpen===index&&<div className="faq-answer"><p>{answer}</p></div>}</div>)}</div>
+          </div>
+        </section>
+
+        <section className="final-cta"><div className="shell final-cta-inner"><MotionReveal><span className="eyebrow">ARQUIVO LULA</span><h2>Trajetória, governos, temas e referências organizados para consulta.</h2><CheckoutButton className="btn-large">Acessar o e-book</CheckoutButton></MotionReveal></div></section>
       </main>
 
-      <footer className="footer">
-        <div className="shell footer-grid">
-          <div><div className="brand footer-brand"><span className="brand-mark">AL</span><span><strong>Arquivo Lula</strong><small>documentos • trajetória • contexto</small></span></div><p>Projeto editorial informativo. O site organiza conteúdos e referências para facilitar a consulta.</p></div>
-          <div className="footer-links"><button onClick={()=>scrollTo("inicio")}>Início</button><button onClick={()=>scrollTo("fontes")}>Fontes</button><button onClick={()=>scrollTo("ebook")}>E-book</button></div>
-        </div>
-        <div className="shell footer-bottom"><span>© 2026 Arquivo Lula</span><span>Conteúdo com data de corte e fontes por edição.</span></div>
-      </footer>
+      <footer className="footer"><div className="shell footer-grid"><div><div className="brand footer-brand"><span className="brand-mark">AL</span><span><strong>Arquivo Lula</strong><small>documentos • trajetória • contexto</small></span></div><p>Projeto editorial informativo. Consulte as fontes indicadas e o contexto original de cada informação.</p></div><div className="footer-links"><button onClick={()=>scrollTo("conteudo")}>Conteúdo</button><button onClick={()=>scrollTo("fontes")}>Fontes</button><button onClick={()=>scrollTo("ebook")}>E-book</button></div></div><div className="shell footer-bottom"><span>© 2026 Arquivo Lula</span><span>Projeto editorial informativo</span></div></footer>
 
-      <div className="mobile-cta"><button className="btn btn-primary" onClick={checkout}><BookOpen size={17}/> Acessar o e-book</button></div>
+      <div className={"mobile-sticky-cta " + (stickyVisible ? "visible" : "")}><div><span className="eyebrow">E-BOOK DIGITAL</span><strong>{ebook.title}</strong></div><CheckoutButton>Acessar</CheckoutButton></div>
     </div>
   );
-}
-
-function FaqItem({ question, answer }: { question: string; answer: string }) {
-  const [open,setOpen] = useState(false);
-  return <div className="faq-item"><button onClick={()=>setOpen(value=>!value)} aria-expanded={open}><span>{question}</span><ChevronDown size={18} className={open ? "rotate-180" : ""}/></button>{open && <p>{answer}</p>}</div>;
 }
