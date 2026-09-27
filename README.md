@@ -14,6 +14,8 @@ Continue developing this project in the [Lovable editor](https://lovable.dev/pro
 
 ## Development
 
+<!-- Lovable sync trigger: latest checkout and Plus Pix integration changes are on main. -->
+
 Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
 
 ```sh
