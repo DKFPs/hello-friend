@@ -11,7 +11,7 @@ const faqs = [
   ["O conteúdo possui fontes?", "Sim. A proposta editorial é indicar referências consultáveis e separar fatos documentados de alegações ou interpretações."],
   ["O material possui data de corte?", "Cada edição deverá informar claramente sua data de corte, para que o leitor saiba até quando o conteúdo foi atualizado."],
   ["Posso ler pelo celular?", "Sim. O e-book será disponibilizado em formato digital compatível com celular, tablet e computador."],
-  ["Como funciona o pagamento?", "O botão de compra leva para um checkout externo. As condições de pagamento e entrega são apresentadas na página do checkout."],
+  ["Como funciona o pagamento?", "O botão de compra leva para a página de pagamento, onde você informa os dados do pagador e gera o Pix. A confirmação é consultada automaticamente na Plus Pix."],
 ];
 
 const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
