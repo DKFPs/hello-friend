@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, Clipboard, Loader2, X } from "lucide-react";
-import { createPixDeposit } from "../../server/payments/pluspix";
+import { checkPixTransaction, createPixDeposit } from "../../server/payments/pluspix";
 
 function onlyDigits(value: string) {
   return value.replace(/\D/g, "").slice(0, 11);
@@ -21,7 +21,46 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
 
-  if (!open) return null;
+  useEffect(() => {
+    if (!open || !payment?.transactionId) return;
+    const normalized = payment.status.trim().toUpperCase();
+    if (["COMPLETO", "PAGO", "PAID"].includes(normalized)) return;
+
+    let active = true;
+    let attempts = 0;
+    const maxAttempts = 36;
+
+    const poll = async () => {
+      if (!active || attempts >= maxAttempts) return;
+      attempts += 1;
+
+      try {
+        const result = await checkPixTransaction({
+          data: { transactionId: payment.transactionId },
+        });
+
+        if (!active) return;
+
+        setPayment((current) => current ? {
+          ...current,
+          status: result.transactionState,
+        } : current);
+      } catch {
+        // Falhas temporárias de consulta não interrompem o polling.
+      }
+    };
+
+    void poll();
+    const interval = window.setInterval(() => {
+      void poll();
+      if (attempts >= maxAttempts) window.clearInterval(interval);
+    }, 5000);
+
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+    };
+  }, [open, payment?.transactionId, payment?.status]);
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -78,12 +117,29 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
           <>
             <span className="eyebrow">PAGAMENTO GERADO</span>
             <h2 id="pix-title">Pague via Pix</h2>
-            <p className="pix-lead">A cobrança foi criada e está com status <strong>{payment.status}</strong>.</p>
+            {["COMPLETO", "PAGO", "PAID"].includes(payment.status.trim().toUpperCase()) ? (
+              <>
+                <div className="pix-success" role="status">
+                  <Check size={22} />
+                  <div>
+                    <strong>Pagamento confirmado</strong>
+                    <span>A transação foi confirmada pela Plus Pix.</span>
+                  </div>
+                </div>
+                <p className="pix-lead">Seu pagamento foi identificado. O próximo passo é liberar o acesso ao e-book.</p>
+              </>
+            ) : (
+              <p className="pix-lead">
+                A cobrança foi criada e está com status <strong>{payment.status}</strong>. O site consulta a Plus Pix automaticamente até a confirmação.
+              </p>
+            )}
             {payment.qrcodeUrl && <div className="pix-qr"><img src={qrSource(payment.qrcodeUrl)} alt="QR Code para pagamento Pix"/></div>}
             <button className="pix-copy" onClick={copy}>{copied ? <Check size={17}/> : <Clipboard size={17}/>} {copied ? "Código copiado" : "Copiar Pix Copia e Cola"}</button>
             {payment.copyPaste && <textarea readOnly value={payment.copyPaste} aria-label="Pix Copia e Cola"/>}
             <div className="pix-transaction">Transação: {payment.transactionId || "gerada pela Plus Pix"}</div>
-            <div className="pix-warning">A confirmação automática da compra será ativada quando o webhook/status da Plus Pix estiver configurado.</div>
+            {!["COMPLETO", "PAGO", "PAID"].includes(payment.status.trim().toUpperCase()) && (
+              <div className="pix-warning">A confirmação automática está ativa por consulta à API. O sistema fará novas verificações por até 3 minutos.</div>
+            )}
             <button className="btn btn-ghost full-width" onClick={close}>Fechar</button>
           </>
         )}
