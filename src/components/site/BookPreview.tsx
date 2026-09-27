@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Maximize2 } from "lucide-react";
 import { ebookPreviewImages } from "../../data/site";
 import { MotionReveal } from "../motion/MotionReveal";
@@ -6,10 +6,29 @@ import { MotionReveal } from "../motion/MotionReveal";
 export function BookPreview() {
   const [active, setActive] = useState(0);
   const [open, setOpen] = useState(false);
+  const touchStart = useRef<number | null>(null);
+  const touchCurrent = useRef<number | null>(null);
   const current = ebookPreviewImages[active];
 
   const step = (direction: number) => {
     setActive((value) => (value + direction + ebookPreviewImages.length) % ebookPreviewImages.length);
+  };
+
+  const onTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    touchStart.current = event.touches[0]?.clientX ?? null;
+    touchCurrent.current = touchStart.current;
+  };
+
+  const onTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+    touchCurrent.current = event.touches[0]?.clientX ?? touchCurrent.current;
+  };
+
+  const onTouchEnd = () => {
+    if (touchStart.current == null || touchCurrent.current == null) return;
+    const distance = touchStart.current - touchCurrent.current;
+    if (Math.abs(distance) > 45) step(distance > 0 ? 1 : -1);
+    touchStart.current = null;
+    touchCurrent.current = null;
   };
 
   const Paper = ({ large = false }: { large?: boolean }) => (
@@ -27,6 +46,9 @@ export function BookPreview() {
       <MotionReveal className="preview-shell">
         <div
           className="preview-stage"
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
           onClick={() => setOpen(true)}
           role="button"
           tabIndex={0}
