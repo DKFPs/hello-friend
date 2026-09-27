@@ -8,6 +8,7 @@ export function BookPreview() {
   const [open, setOpen] = useState(false);
   const touchStart = useRef<number | null>(null);
   const touchCurrent = useRef<number | null>(null);
+  const didSwipe = useRef(false);
   const current = ebookPreviewImages[active];
 
   const step = (direction: number) => {
@@ -26,7 +27,11 @@ export function BookPreview() {
   const onTouchEnd = () => {
     if (touchStart.current == null || touchCurrent.current == null) return;
     const distance = touchStart.current - touchCurrent.current;
-    if (Math.abs(distance) > 45) step(distance > 0 ? 1 : -1);
+    if (Math.abs(distance) > 45) {
+      didSwipe.current = true;
+      step(distance > 0 ? 1 : -1);
+      window.setTimeout(() => { didSwipe.current = false; }, 80);
+    }
     touchStart.current = null;
     touchCurrent.current = null;
   };
@@ -49,7 +54,7 @@ export function BookPreview() {
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
-          onClick={() => setOpen(true)}
+          onClick={() => { if (didSwipe.current) return; setOpen(true); }}
           role="button"
           tabIndex={0}
           onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") setOpen(true); }}
