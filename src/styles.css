@@ -47,3 +47,5 @@
 @media(max-width:640px){.image-gallery{grid-template-columns:1fr;gap:14px}.gallery-card img{aspect-ratio:4/3}}
 
 .checkout-gateway-status{display:flex;align-items:flex-start;gap:9px;margin-top:14px;padding:11px 12px;border:1px solid #282e36;background:#0b0f14;color:#808a96;font-size:10px;line-height:1.5}.checkout-gateway-status svg{flex:0 0 auto;margin-top:1px}.checkout-gateway-status.ready{border-color:rgba(90,190,125,.28);color:#9db5a4}.checkout-gateway-status.error{border-color:rgba(220,85,85,.28);color:#d8a0a0}
+
+.pix-copy:disabled{opacity:.45;cursor:not-allowed}.pix-check-now{margin-top:12px;min-height:45px}.pix-check-now svg{flex:0 0 auto}
