@@ -19,7 +19,7 @@ export const galleryImages = [
     credit: "Foto: Ricardo Stuckert / PR • Wikimedia Commons",
   },
   {
-    src: "https://upload.wikimedia.org/wikipedia/commons/8/8a/Lula_da_Silva_in_2023.jpg",
+    src: "https://upload.wikimedia.org/wikipedia/commons/b/b3/Lula_da_Silva_in_2023.jpg",
     alt: "Luiz Inácio Lula da Silva durante a posse presidencial de 2023.",
     caption: "Posse presidencial • 2023",
     credit: "Foto: Jefferson Rudy / Agência Senado • Wikimedia Commons",
