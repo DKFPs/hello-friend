@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Check, Clipboard, Download, Loader2, X } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { checkPixTransaction, createPixDeposit } from "../../lib/pluspix.functions";
 import { createEbookDownloadLink } from "../../server/payments/ebook-delivery";
 
@@ -12,6 +13,17 @@ function qrSource(value: string) {
   if (value.startsWith("data:image/")) return value;
   if (value.startsWith("base64:")) return "data:image/png;base64," + value.slice(7);
   return value;
+}
+
+async function unlockDownload(transactionId: string, payerDocument: string) {
+  try {
+    const result = await createEbookDownloadLink({
+      data: { transactionId, payerDocument: onlyDigits(payerDocument) },
+    });
+    return result.downloadPath;
+  } catch (caught) {
+    throw caught instanceof Error ? caught : new Error("Não foi possível preparar o download.");
+  }
 }
 
 export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -171,10 +183,23 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
                 A cobrança foi criada e está com status <strong>{payment.status}</strong>. O site consulta a Plus Pix automaticamente até a confirmação.
               </p>
             )}
-            {payment.qrcodeUrl ? (
+            {payment.copyPaste ? (
+              <div className="pix-qr">
+                <QRCodeSVG
+                  value={payment.copyPaste.trim()}
+                  size={245}
+                  level="H"
+                  marginSize={4}
+                  bgColor="#ffffff"
+                  fgColor="#000000"
+                  title="QR Code Pix para pagamento"
+                  aria-label="QR Code Pix para pagamento"
+                />
+              </div>
+            ) : payment.qrcodeUrl ? (
               <div className="pix-qr"><img src={qrSource(payment.qrcodeUrl)} alt="QR Code para pagamento Pix"/></div>
             ) : (
-              <div className="pix-error">A Plus Pix não retornou o QR Code. Tente gerar uma nova cobrança.</div>
+              <div className="pix-error">A Plus Pix não retornou um código de pagamento para gerar o QR Code.</div>
             )}
             <button className="pix-copy" onClick={copy} disabled={!payment.copyPaste}>{copied ? <Check size={17}/> : <Clipboard size={17}/>} {copied ? "Código copiado" : "Copiar Pix Copia e Cola"}</button>
             {payment.copyPaste && <textarea readOnly value={payment.copyPaste} aria-label="Pix Copia e Cola"/>}
