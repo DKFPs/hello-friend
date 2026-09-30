@@ -3,7 +3,7 @@ import { z } from "zod";
 
 export const getPlusPixConfigStatus = createServerFn({ method: "GET" }).handler(() => ({
   configured: Boolean(process.env['PLUSPIX_CLIENT_ID'] && process.env['PLUSPIX_CLIENT_SECRET']),
-  amount: 23.47,
+  amount: 29.95,
 }));
 
 const DepositSchema = z.object({
@@ -58,7 +58,7 @@ export const createPixDeposit = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const clientId = process.env['PLUSPIX_CLIENT_ID'];
     const clientSecret = process.env['PLUSPIX_CLIENT_SECRET'];
-    const amountRaw = process.env['EBOOK_PRICE_AMOUNT'] || "23.47";
+    const amountRaw = process.env['EBOOK_PRICE_AMOUNT'] || "29.95";
 
     if (!clientId || !clientSecret) {
       throw new Error("Pagamento Pix não configurado: faltam as credenciais do servidor.");
@@ -69,7 +69,7 @@ export const createPixDeposit = createServerFn({ method: "POST" })
     if (cleaned.includes(",")) cleaned = cleaned.replace(/\./g, "").replace(",", ".");
     let amount = Math.round(Number(cleaned) * 100) / 100;
     if (!Number.isFinite(amount) || amount <= 0) {
-      console.error("EBOOK_PRICE_AMOUNT inválido, usando 23.47:", amountRaw);
+      console.error("EBOOK_PRICE_AMOUNT inválido, usando 29.95:", amountRaw);
       amount = 23.47;
     }
 
