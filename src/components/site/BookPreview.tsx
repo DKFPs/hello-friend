@@ -38,6 +38,14 @@ export function BookPreview() {
 
   const Paper = ({ large = false }: { large?: boolean }) => (
     <div className={"preview-paper " + (large ? "preview-paper-large " : "") + "preview-" + current.type}>
+      <img
+        className="preview-art"
+        src={current.image}
+        alt={current.imageAlt}
+        loading={large ? "eager" : "lazy"}
+        onError={(event) => { event.currentTarget.style.display = "none"; }}
+      />
+      <div className="preview-art-overlay" aria-hidden="true" />
       {current.type === "cover" && <><span className="paper-overline">ARQUIVO • EDIÇÃO DIGITAL</span><strong>LULA</strong><h3>Uma trajetória política em perspectiva</h3><div className="paper-rule"/><span className="paper-small">Governos • acontecimentos • referências</span></>}
       {current.type === "contents" && <><span className="paper-kicker">SUMÁRIO</span><h3>O conteúdo reunido em um único material</h3>{["Biografia","Governos","Economia","Políticas sociais","Controvérsias","Linha do tempo","Fontes"].map((item,index)=><div className="paper-row" key={item}><span>{String(index+1).padStart(2,"0")}</span><b>{item}</b></div>)}</>}
       {current.type === "timeline" && <><span className="paper-kicker">LINHA DO TEMPO</span><h3>Marcos organizados por data</h3><div className="mini-timeline">{["1945","1975","1980","2002","2003","2007","2022","2023"].map(year=><div key={year}><span>{year}</span><i/></div>)}</div></>}
