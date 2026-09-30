@@ -9,32 +9,32 @@ export const ebook = {
   availabilityText: "E-book digital",
 };
 
-export const heroImage = "https://www.gov.br/planalto501/pt-br/acompanhe-o-planalto/noticias/2024/11/presidente-lula-tera-reunioes-bilaterais-em-paralelo-a-eventos-do-g20/241115_planalto_presidentelula_foto-ricardostuckert-pr.jpg/%40%40images/6c265e7f-440c-47bd-bf70-2a961e06917d.jpeg";
+export const heroImage = "https://upload.wikimedia.org/wikipedia/commons/4/40/Foto_oficial_de_Luiz_In%C3%A1cio_Lula_da_Silva_%28estreita%29.jpg";
 
 export const galleryImages = [
   {
-    src: "https://www.gov.br/planejamento/pt-br/assuntos/noticias/2026/imagens/55156120202_eb131de887_o.jpg",
-    alt: "Luiz Inácio Lula da Silva durante cerimônia da Caravana Federativa, em São Paulo.",
-    caption: "Cerimônia da Caravana Federativa • 2026",
-    credit: "Foto: Ricardo Stuckert / PR",
+    src: "https://upload.wikimedia.org/wikipedia/commons/2/22/Foto_oficial_de_Luiz_In%C3%A1cio_Lula_da_Silva_%28corpo%29.jpg",
+    alt: "Retrato oficial de Luiz Inácio Lula da Silva.",
+    caption: "Retrato oficial",
+    credit: "Foto: Ricardo Stuckert / PR • Wikimedia Commons",
   },
   {
-    src: "https://www.gov.br/planalto/pt-br/media/231202_Planalto_PR_ParticipacaodoPRLulaeMarinaSilva_Floresta_FotoRicardoStuckertPR.webp/%40%40images/7d11409d-802c-488c-bdaa-a267c822149b.jpeg",
-    alt: "Luiz Inácio Lula da Silva em agenda institucional relacionada à preservação ambiental.",
-    caption: "Agenda institucional • meio ambiente",
-    credit: "Foto: Ricardo Stuckert / PR",
+    src: "https://upload.wikimedia.org/wikipedia/commons/8/8a/Lula_da_Silva_in_2023.jpg",
+    alt: "Luiz Inácio Lula da Silva durante a posse presidencial de 2023.",
+    caption: "Posse presidencial • 2023",
+    credit: "Foto: Jefferson Rudy / Agência Senado • Wikimedia Commons",
   },
   {
-    src: "https://www.gov.br/planalto/pt-br/conheca-a-presidencia/palacios-e-residencias/palacio-do-planalto/galeria-de-imagens/palacio-do-planalto-16.jpg/image_view_fullscreen",
-    alt: "Fachada do Palácio do Planalto, em Brasília.",
-    caption: "Palácio do Planalto • Brasília",
-    credit: "Fonte: Presidência da República",
+    src: "https://upload.wikimedia.org/wikipedia/commons/1/1c/Luiz_In%C3%A1cio_Lula_da_Silva_2023.jpg",
+    alt: "Luiz Inácio Lula da Silva em agenda institucional em 2023.",
+    caption: "Agenda institucional • 2023",
+    credit: "Foto: Ricardo Stuckert / PR • Wikimedia Commons",
   },
   {
-    src: "https://www.gov.br/planalto/pt-br/media/230101_Planalto_Posse2PresidenteLula_FotoRicardoStuckertPR.jpg/image_view_fullscreen",
-    alt: "Registro da posse presidencial de Luiz Inácio Lula da Silva em 2023.",
-    caption: "Posse presidencial • 1º de janeiro de 2023",
-    credit: "Foto: Ricardo Stuckert / PR",
+    src: "https://upload.wikimedia.org/wikipedia/commons/4/40/Foto_oficial_de_Luiz_In%C3%A1cio_Lula_da_Silva_%28estreita%29.jpg",
+    alt: "Retrato oficial de Luiz Inácio Lula da Silva.",
+    caption: "Retrato oficial • arquivo",
+    credit: "Foto: Ricardo Stuckert / PR • Wikimedia Commons",
   },
 ];
 
