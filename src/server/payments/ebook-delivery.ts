@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 const API = "https://api-pluspix.squareweb.app";
-const PRICE = 23.47;
+const PRICE = 29.95;
 const COMPLETE = new Set(["COMPLETO", "PAGO", "PAID"]);
 
 function creds() {
