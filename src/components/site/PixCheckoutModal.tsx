@@ -66,7 +66,11 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
 
         if (["COMPLETO", "PAGO", "PAID"].includes(transactionState)) {
           window.clearInterval(interval);
-          void unlockDownload(payment.transactionId, payerDocument);
+          if (active) {
+            void unlockDownload(payment.transactionId, payerDocument)
+              .then((path) => setDownloadPath(path))
+              .catch((caught) => setError(caught instanceof Error ? caught.message : "Não foi possível preparar o download."));
+          }
         }
       } catch {
         // Falhas temporárias de consulta não interrompem o polling.
@@ -96,7 +100,9 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
       });
       setPayment(result);
       if (["COMPLETO", "PAGO", "PAID"].includes(result.status.trim().toUpperCase())) {
-        void unlockDownload(result.transactionId, onlyDigits(payerDocument));
+        void unlockDownload(result.transactionId, onlyDigits(payerDocument))
+          .then((path) => setDownloadPath(path))
+          .catch((caught) => setError(caught instanceof Error ? caught.message : "Não foi possível preparar o download."));
       }
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Não foi possível gerar o Pix.");
@@ -118,7 +124,9 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
         status: result.transactionState,
       } : current);
       if (["COMPLETO", "PAGO", "PAID"].includes(result.transactionState.trim().toUpperCase())) {
-        void unlockDownload(payment.transactionId, payerDocument);
+        void unlockDownload(payment.transactionId, payerDocument)
+          .then((path) => setDownloadPath(path))
+          .catch((caught) => setError(caught instanceof Error ? caught.message : "Não foi possível preparar o download."));
       }
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Não foi possível consultar o pagamento.");
@@ -187,8 +195,9 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
               <div className="pix-qr">
                 <QRCodeSVG
                   value={payment.copyPaste.trim()}
-                  size={245}
-                  level="H"
+                  size={280}
+                  level="M"
+                  boostLevel={false}
                   marginSize={4}
                   bgColor="#ffffff"
                   fgColor="#000000"
