@@ -39,10 +39,30 @@ export const galleryImages = [
 ];
 
 export const ebookPreviewImages = [
-  { label: "Capa", type: "cover" },
-  { label: "Sumário", type: "contents" },
-  { label: "Linha do tempo", type: "timeline" },
-  { label: "Referências", type: "sources" },
+  {
+    label: "Capa",
+    type: "cover",
+    image: "https://upload.wikimedia.org/wikipedia/commons/4/40/Foto_oficial_de_Luiz_In%C3%A1cio_Lula_da_Silva_%28estreita%29.jpg",
+    imageAlt: "Retrato oficial de Luiz Inácio Lula da Silva.",
+  },
+  {
+    label: "Sumário",
+    type: "contents",
+    image: "https://upload.wikimedia.org/wikipedia/commons/1/1c/Luiz_In%C3%A1cio_Lula_da_Silva_2023.jpg",
+    imageAlt: "Luiz Inácio Lula da Silva em agenda institucional em 2023.",
+  },
+  {
+    label: "Linha do tempo",
+    type: "timeline",
+    image: "https://upload.wikimedia.org/wikipedia/commons/b/b3/Lula_da_Silva_in_2023.jpg",
+    imageAlt: "Luiz Inácio Lula da Silva durante a posse presidencial de 2023.",
+  },
+  {
+    label: "Referências",
+    type: "sources",
+    image: "https://upload.wikimedia.org/wikipedia/commons/2/22/Foto_oficial_de_Luiz_In%C3%A1cio_Lula_da_Silva_%28corpo%29.jpg",
+    imageAlt: "Retrato oficial de Luiz Inácio Lula da Silva.",
+  },
 ];
 
 export const siteSources = [
