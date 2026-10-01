@@ -83,7 +83,15 @@ export const createPixDeposit = createServerFn({ method: "POST" })
 
     if (!response.ok || !payload?.success) {
       console.error("Plus Pix deposit error:", response.status, payload);
-      throw new Error(response.status === 401 ? "Credenciais da Plus Pix inválidas. Verifique o Client ID e o Client Secret." : "A Plus Pix não conseguiu criar a cobrança. Tente novamente.");
+      if (response.status === 401) {
+        throw new Error("Credenciais da Plus Pix inválidas. Verifique o Client ID e o Client Secret.");
+      }
+      const providerMessage = typeof payload?.message === "string"
+        ? payload.message
+        : typeof payload?.error === "string"
+          ? payload.error
+          : "";
+      throw new Error(providerMessage || `A Plus Pix não conseguiu criar a cobrança (HTTP ${response.status}).`);
     }
 
     return {
