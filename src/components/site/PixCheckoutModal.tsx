@@ -61,6 +61,7 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
   const [checking, setChecking] = useState(false);
   const [downloadPath, setDownloadPath] = useState("");
   const [downloadLoading, setDownloadLoading] = useState(false);
+  const [qrImageFailed, setQrImageFailed] = useState(false);
 
   useEffect(() => {
     if (!open || !payment?.transactionId) return;
@@ -123,9 +124,10 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
       const result = await createPixDeposit({
         data: { payerName: payerName.trim(), payerDocument: onlyDigits(payerDocument) },
       });
+      setQrImageFailed(false);
       setPayment({
         ...result,
-        copyPaste: normalizePixCode(result.copyPaste),
+        copyPaste: result.copyPaste.trim(),
       });
       if (["COMPLETO", "PAGO", "PAID"].includes(result.status.trim().toUpperCase())) {
         void unlockDownload(result.transactionId, onlyDigits(payerDocument))
@@ -219,7 +221,15 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
                 A cobrança foi criada e está com status <strong>{payment.status}</strong>. O site consulta a Plus Pix automaticamente até a confirmação.
               </p>
             )}
-            {payment.copyPaste && isValidPixPayload(payment.copyPaste) ? (
+            {payment.qrcodeUrl && !qrImageFailed ? (
+              <div className="pix-qr">
+                <img
+                  src={qrSource(payment.qrcodeUrl)}
+                  alt="QR Code para pagamento Pix"
+                  onError={() => setQrImageFailed(true)}
+                />
+              </div>
+            ) : payment.copyPaste && isValidPixPayload(payment.copyPaste) ? (
               <div className="pix-qr">
                 <QRCodeSVG
                   value={normalizePixCode(payment.copyPaste)}
@@ -233,10 +243,8 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
                   aria-label="QR Code Pix para pagamento"
                 />
               </div>
-            ) : payment.qrcodeUrl ? (
-              <div className="pix-qr"><img src={qrSource(payment.qrcodeUrl)} alt="QR Code para pagamento Pix"/></div>
             ) : payment.copyPaste ? (
-              <div className="pix-error">A Plus Pix retornou um código Pix que não passou na validação. A cobrança precisa ser recriada.</div>
+              <div className="pix-error">A Plus Pix não retornou um QR Code utilizável nem um código Pix válido para gerar uma alternativa.</div>
             ) : (
               <div className="pix-error">A Plus Pix não retornou um código de pagamento.</div>
             )}
