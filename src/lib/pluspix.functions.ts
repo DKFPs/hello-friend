@@ -58,19 +58,10 @@ export const createPixDeposit = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const clientId = process.env['PLUSPIX_CLIENT_ID'];
     const clientSecret = process.env['PLUSPIX_CLIENT_SECRET'];
-    const amountRaw = process.env['EBOOK_PRICE_AMOUNT'] || "29.95";
+    const amount = 29.95;
 
     if (!clientId || !clientSecret) {
       throw new Error("Pagamento Pix não configurado: faltam as credenciais do servidor.");
-    }
-
-    // Aceita formatos como "23.47", "23,47", "R$ 23,47" ou "1.234,56".
-    let cleaned = amountRaw.replace(/[^\d.,]/g, "");
-    if (cleaned.includes(",")) cleaned = cleaned.replace(/\./g, "").replace(",", ".");
-    let amount = Math.round(Number(cleaned) * 100) / 100;
-    if (!Number.isFinite(amount) || amount <= 0) {
-      console.error("EBOOK_PRICE_AMOUNT inválido, usando 29.95:", amountRaw);
-      amount = 23.47;
     }
 
     const response = await fetch("https://api-pluspix.squareweb.app/api/v1/deposit", {
@@ -98,7 +89,7 @@ export const createPixDeposit = createServerFn({ method: "POST" })
     return {
       transactionId: String(payload.transactionId ?? ""),
       qrcodeUrl: String(payload.qrcodeUrl ?? ""),
-      copyPaste: String(payload.copyPaste ?? ""),
+      copyPaste: String(payload.copyPaste ?? "").replace(/\s+/g, ""),
       status: String(payload.status ?? "PENDENTE"),
     };
   });
