@@ -4,6 +4,31 @@ import { QRCodeSVG } from "qrcode.react";
 import { checkPixTransaction, createPixDeposit } from "../../lib/pluspix.functions";
 import { createEbookDownloadLink } from "../../lib/ebook-delivery.functions";
 
+function normalizePixCode(value: string) {
+  return value.replace(/\s+/g, "").trim();
+}
+
+function crc16Ccitt(value: string) {
+  let crc = 0xffff;
+  for (let index = 0; index < value.length; index += 1) {
+    crc ^= value.charCodeAt(index) << 8;
+    for (let bit = 0; bit < 8; bit += 1) {
+      crc = (crc & 0x8000) !== 0 ? ((crc << 1) ^ 0x1021) & 0xffff : (crc << 1) & 0xffff;
+    }
+  }
+  return crc.toString(16).toUpperCase().padStart(4, "0");
+}
+
+function isValidPixPayload(value: string) {
+  const code = normalizePixCode(value);
+  if (!code.startsWith("000201")) return false;
+  const crcIndex = code.lastIndexOf("6304");
+  if (crcIndex < 0 || crcIndex + 8 !== code.length) return false;
+  const provided = code.slice(-4).toUpperCase();
+  const calculated = crc16Ccitt(code.slice(0, crcIndex + 4));
+  return provided === calculated;
+}
+
 function onlyDigits(value: string) {
   return value.replace(/\D/g, "").slice(0, 11);
 }
@@ -98,7 +123,10 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
       const result = await createPixDeposit({
         data: { payerName: payerName.trim(), payerDocument: onlyDigits(payerDocument) },
       });
-      setPayment(result);
+      setPayment({
+        ...result,
+        copyPaste: normalizePixCode(result.copyPaste),
+      });
       if (["COMPLETO", "PAGO", "PAID"].includes(result.status.trim().toUpperCase())) {
         void unlockDownload(result.transactionId, onlyDigits(payerDocument))
           .then((path) => setDownloadPath(path))
@@ -137,7 +165,7 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
 
   const copy = async () => {
     if (!payment?.copyPaste) return;
-    await navigator.clipboard.writeText(payment.copyPaste);
+    await navigator.clipboard.writeText(normalizePixCode(payment.copyPaste));
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1800);
   };
@@ -191,10 +219,10 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
                 A cobrança foi criada e está com status <strong>{payment.status}</strong>. O site consulta a Plus Pix automaticamente até a confirmação.
               </p>
             )}
-            {payment.copyPaste ? (
+            {payment.copyPaste && isValidPixPayload(payment.copyPaste) ? (
               <div className="pix-qr">
                 <QRCodeSVG
-                  value={payment.copyPaste.trim()}
+                  value={normalizePixCode(payment.copyPaste)}
                   size={280}
                   level="M"
                   boostLevel={false}
@@ -207,11 +235,16 @@ export function PixCheckoutModal({ open, onClose }: { open: boolean; onClose: ()
               </div>
             ) : payment.qrcodeUrl ? (
               <div className="pix-qr"><img src={qrSource(payment.qrcodeUrl)} alt="QR Code para pagamento Pix"/></div>
+            ) : payment.copyPaste ? (
+              <div className="pix-error">A Plus Pix retornou um código Pix que não passou na validação. A cobrança precisa ser recriada.</div>
             ) : (
-              <div className="pix-error">A Plus Pix não retornou um código de pagamento para gerar o QR Code.</div>
+              <div className="pix-error">A Plus Pix não retornou um código de pagamento.</div>
             )}
             <button className="pix-copy" onClick={copy} disabled={!payment.copyPaste}>{copied ? <Check size={17}/> : <Clipboard size={17}/>} {copied ? "Código copiado" : "Copiar Pix Copia e Cola"}</button>
-            {payment.copyPaste && <textarea readOnly value={payment.copyPaste} aria-label="Pix Copia e Cola"/>}
+            {payment.copyPaste && <textarea readOnly value={normalizePixCode(payment.copyPaste)} aria-label="Pix Copia e Cola"/>}
+            {payment.copyPaste && !isValidPixPayload(payment.copyPaste) && (
+              <div className="pix-warning">O código recebido da Plus Pix não passou na validação do padrão Pix. Não realize o pagamento nessa cobrança; gere uma nova.</div>
+            )}
             <button className="btn btn-secondary full-width pix-check-now" onClick={checkNow} disabled={checking || ["COMPLETO", "PAGO", "PAID"].includes(payment.status.trim().toUpperCase())}>
               {checking ? <><Loader2 size={16} className="spin"/> Consultando pagamento...</> : "Já paguei · Verificar agora"}
             </button>
