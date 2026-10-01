@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { authorizeEbookDownload } from "../../server/payments/ebook-delivery";
+import { authorizeEbookDownload } from "../../lib/ebook-delivery.functions";
 import { buildEbookPdf } from "../../server/ebook-pdf";
 
 export const Route = createFileRoute("/download/ebook")({

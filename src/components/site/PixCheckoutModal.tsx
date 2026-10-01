@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Check, Clipboard, Download, Loader2, X } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { checkPixTransaction, createPixDeposit } from "../../lib/pluspix.functions";
-import { createEbookDownloadLink } from "../../server/payments/ebook-delivery";
+import { createEbookDownloadLink } from "../../lib/ebook-delivery.functions";
 
 function onlyDigits(value: string) {
   return value.replace(/\D/g, "").slice(0, 11);
