@@ -23,7 +23,6 @@ const CheckoutRoute = CheckoutRouteImport.update({
   path: '/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
-
 const DownloadEbookRoute = DownloadEbookRouteImport.update({
   id: '/download/ebook',
   path: '/download/ebook',
